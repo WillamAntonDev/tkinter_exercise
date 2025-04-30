@@ -1,9 +1,20 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import json
+from tkinter import messagebox
 import pyperclip
 from random import choice, randint, shuffle
 import os
+import sys
+import datetime
+
+with open("/Users/billanton/Desktop/gg_debug_log.txt", "a") as log:
+    log.write(f"\n[{datetime.datetime.now()}] App started\n")
+    log.write(f"Executable: {sys.executable}\n")
+    log.write(f"Current working dir: {os.getcwd()}\n")
+    log.write(f"Saving to: {os.path.expanduser('~/Documents/GrapePasswords/passwords.json')}\n")
+
+# --- Debugging Information ---
 print("🤖 Current working directory:", os.getcwd())
 
 
@@ -12,8 +23,17 @@ root = ttk.Window(themename="flatly", iconphoto="")
 root.title("🔐 Password Manager")
 root.geometry("400x450")
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_FILE = os.path.join(BASE_DIR, "passwords.json")
+
+# Always save to ~/Documents/GrapePasswords/passwords.json no matter how the app is run
+DOCS_PATH = os.path.expanduser("~/Documents/GrapePasswords")
+os.makedirs(DOCS_PATH, exist_ok=True)
+DATA_FILE = os.path.join(DOCS_PATH, "passwords.json")
+
+
+
+# 👇 ONLY AFTER DATA_FILE EXISTS
+messagebox.showinfo("Path Debug", f"Saving to:\n{DATA_FILE}")
+
 
 # --- Password Generation Logic ---
 def generate_password():
@@ -55,9 +75,16 @@ def save_password():
 
     data.update(new_data)
 
+    # 🔍 Debug logging right before writing
+    with open("/Users/billanton/Desktop/gg_debug_log.txt", "a") as log:
+        log.write(f"[{datetime.datetime.now()}] Attempting to save to {DATA_FILE}\n")
+        log.write(f"Data: {json.dumps(data, indent=4)}\n")
+
     with open(DATA_FILE, "w") as file:
         json.dump(data, file, indent=4)
+
     status_label.config(text=f"💾 Saved for {website}")
+
 
 # --- Find Password Logic ---
 def find_password():
@@ -71,6 +98,10 @@ def find_password():
         return
 
     if website in data:
+        with open("/Users/billanton/Desktop/gg_debug_log.txt", "a") as log:
+            log.write(f"[{datetime.datetime.now()}] Lookup for: {website}\n")
+            log.write("✅ Found\n")
+            
         creds = data[website]
         email_entry.delete(0, "end")
         email_entry.insert(0, creds["email"])
@@ -79,7 +110,12 @@ def find_password():
         pyperclip.copy(creds["password"])
         status_label.config(text="🔍 Found! Password copied.")
     else:
+        with open("/Users/billanton/Desktop/gg_debug_log.txt", "a") as log:
+            log.write(f"[{datetime.datetime.now()}] Lookup for: {website}\n")
+            log.write("❌ Not Found\n")
+            
         status_label.config(text="❌ No entry found.")
+
 
 # --- Theme Dropdown ---
 def change_theme(choice):

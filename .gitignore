@@ -1,3 +1,20 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv*
+*.log
+
+# PyInstaller
+dist/
+build/
+*.spec
+
+# App Data
 passwords.json
-.venv311/
-venv/
+gg_debug_log.txt
